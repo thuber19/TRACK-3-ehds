@@ -10,6 +10,7 @@ import { OutcomeView } from "@/components/request/outcome-view";
 import { RequestSummary } from "@/components/request/request-summary";
 import { ApiError, api } from "@/lib/api";
 import type { DataRequest, RequestOutcome } from "@/lib/types";
+import { requestKind } from "@/lib/constants";
 import { validateRequestText } from "@/lib/validate";
 
 import { ProcessingPanel } from "./processing-panel";
@@ -94,7 +95,7 @@ export function ApplicantWorkspace() {
                   <Row label="ID" value={validation.request.id} mono />
                   <Row label="Applicant" value={validation.request.applicant.name} />
                   <Row label="Organisation" value={validation.request.applicant.organisation} />
-                  <Row label="Asks for" value={validation.request.requested_as === "records" ? "Access to records" : "Statistics"} />
+                  <Row label="Asks for" value={requestKind(validation.request.requested_as) === "records" ? "Access to records" : "Statistics"} />
                   <Row label="Definitions" value={String(validation.request.definitions.length)} />
                 </dl>
               )}

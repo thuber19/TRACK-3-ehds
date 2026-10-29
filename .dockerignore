@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+var
+**/.venv
+**/__pycache__
+**/*.pyc
+.DS_Store

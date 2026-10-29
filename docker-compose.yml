@@ -1,4 +1,36 @@
 services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATA_MODE: postgres
+      HOSPITAL_NODES: ${HOSPITAL_NODES:-Klinikum Nord=postgresql://hospital:hospital@db_nord:5432/hospital;Klinikum Süd=postgresql://hospital:hospital@db_sud:5432/hospital;Klinikum West=postgresql://hospital:hospital@db_west:5432/hospital}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1}
+      SESSION_SECRET: ${SESSION_SECRET:-dev-secret-change-me}
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      SEED_APPLICANT_USERNAME: ${SEED_APPLICANT_USERNAME:-applicant}
+      SEED_APPLICANT_PASSWORD: ${SEED_APPLICANT_PASSWORD:-applicant}
+      SEED_STAFF_USERNAME: ${SEED_STAFF_USERNAME:-staff}
+      SEED_STAFF_PASSWORD: ${SEED_STAFF_PASSWORD:-staff}
+    volumes:
+      - ./var:/app/var
+    depends_on:
+      - db_nord
+      - db_sud
+      - db_west
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "3000:3000"
+    environment:
+      API_PROXY_URL: http://api:8000
+    depends_on:
+      - api
 
   db_nord:
     image: postgres:16-alpine
@@ -7,8 +39,9 @@ services:
       POSTGRES_USER: hospital
       POSTGRES_PASSWORD: hospital
       HOSPITAL_DATA_DIR: /data
+    # 5435 on the host: a local Postgres often already owns 5432. Inside Compose the service stays on 5432.
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - ./hospitals/Klinikum_Nord:/data:ro
       - ./db/init.sh:/docker-entrypoint-initdb.d/init.sh:ro

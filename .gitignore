@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+.pytest_cache/
 
 # next.js
 /.next/
@@ -42,3 +43,7 @@ next-env.d.ts
 
 # repo
 __pycache__/
+*.pyc
+var/
+.venv/
+!.env.example

@@ -2,7 +2,7 @@ import { Building2Icon, GlobeIcon, UserIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { REQUESTED_AS_LABEL } from "@/lib/constants";
+import { requestKindLabel } from "@/lib/constants";
 import type { DataRequest } from "@/lib/types";
 
 export function RequestSummary({ request }: { request: DataRequest }) {
@@ -26,7 +26,7 @@ export function RequestSummary({ request }: { request: DataRequest }) {
             <GlobeIcon className="size-4 text-muted-foreground" />
             {request.applicant.country}
           </span>
-          <Badge variant="secondary">{REQUESTED_AS_LABEL[request.requested_as]}</Badge>
+          <Badge variant="secondary">{requestKindLabel(request.requested_as)}</Badge>
         </div>
         <dl className="grid gap-4 text-sm">
           <div className="grid gap-1">

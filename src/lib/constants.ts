@@ -64,4 +64,15 @@ export const REQUESTED_AS_LABEL = {
   records: "Access to records",
 } as const;
 
+/** Official files say "health data request" / "health data access application". */
+export function requestKind(value: string | undefined | null): "statistics" | "records" {
+  const text = (value ?? "").toLowerCase();
+  if (text === "records" || text.includes("access")) return "records";
+  return "statistics";
+}
+
+export function requestKindLabel(value: string | undefined | null) {
+  return REQUESTED_AS_LABEL[requestKind(value)];
+}
+
 export const TARGET_SECONDS = 60;

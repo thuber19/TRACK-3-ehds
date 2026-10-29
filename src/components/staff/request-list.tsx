@@ -14,6 +14,7 @@ import { ArticleChipsInline } from "@/components/request/article-chips";
 import { DecisionBadge } from "@/components/request/decision-badge";
 import { formatDuration } from "@/components/request/outcome-view";
 import { api } from "@/lib/api";
+import { useHealth } from "@/lib/use-health";
 import { REQUESTED_AS_LABEL } from "@/lib/constants";
 import type { Decision, RequestListItem, RequestStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ const FILTERS: Array<{ key: Filter; label: string; dot: string }> = [
 export function RequestList() {
   const router = useRouter();
   const [items, setItems] = useState<RequestListItem[] | null>(null);
+  const { health } = useHealth();
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [query, setQuery] = useState("");
@@ -78,6 +80,37 @@ export function RequestList() {
           Refresh
         </Button>
       </div>
+
+      {health && (
+        <Card className="gap-0 py-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">Federated hospital databases</p>
+              <p className="text-xs text-muted-foreground">
+                Queries run on these nodes in parallel. Mode: {health.data_mode}.
+              </p>
+            </div>
+            <Badge variant={health.status === "ok" ? "secondary" : "destructive"}>{health.status}</Badge>
+          </div>
+          {health.warnings.length > 0 && (
+            <p className="border-b bg-warning/10 px-4 py-2 text-sm text-warning-foreground">{health.warnings.join(" ")}</p>
+          )}
+          <div className="grid gap-3 p-4 sm:grid-cols-3">
+            {health.nodes.map((node) => (
+              <div key={node.name} className="rounded-lg border p-3">
+                <p className="flex items-center gap-2 font-medium">
+                  <span className={cn("size-2 rounded-full", node.ok ? "bg-success" : "bg-destructive")} />
+                  {node.name}
+                </p>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">{node.endpoint}</p>
+                <p className="mt-2 text-sm tabular-nums text-muted-foreground">
+                  {node.ok ? `${node.patients?.toLocaleString("en-US")} patients` : "Not reachable"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {FILTERS.map((f) => (

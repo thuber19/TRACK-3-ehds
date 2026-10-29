@@ -69,10 +69,19 @@ export function validateRequestText(text: string): ValidationResult {
     }
   }
 
-  if (obj.requested_as !== "statistics" && obj.requested_as !== "records") {
+  const requested = typeof obj.requested_as === "string" ? obj.requested_as.toLowerCase() : "";
+  const official =
+    requested === "statistics" ||
+    requested === "records" ||
+    requested === "health data request" ||
+    requested === "health data access application";
+  if (!official) {
     issues.push({
       path: "requested_as",
-      message: obj.requested_as === undefined ? "Required field is missing." : 'Must be "statistics" or "records".',
+      message:
+        obj.requested_as === undefined
+          ? "Required field is missing."
+          : 'Use "statistics", "records", "health data request" or "health data access application".',
     });
   }
 

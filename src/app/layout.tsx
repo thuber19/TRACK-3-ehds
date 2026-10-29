@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 
-import { SiteHeader } from "@/components/site-header";
+import { AuthFrame } from "@/components/auth-frame";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -33,8 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col bg-muted/30">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <TooltipProvider>
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
+            <AuthFrame>{children}</AuthFrame>
             <Toaster richColors position="bottom-right" />
           </TooltipProvider>
         </ThemeProvider>

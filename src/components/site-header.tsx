@@ -1,53 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { MoonIcon, ShieldCheckIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { api, type SessionUser } from "@/lib/api";
+import { useHealth } from "@/lib/use-health";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { href: "/applicant", label: "Applicant" },
-  { href: "/staff", label: "Staff" },
-];
-
-export function SiteHeader() {
-  const pathname = usePathname();
+export function SiteHeader({ user }: { user: SessionUser }) {
+  const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
+  const { health, unreachable } = useHealth();
+  const home = user.role === "staff" ? "/staff" : "/applicant";
+
+  const connected = health?.nodes.filter((node) => node.ok).length ?? 0;
+  const total = health?.nodes.length ?? 0;
+  const healthLabel = unreachable
+    ? "Hospital databases unreachable"
+    : health
+      ? `${connected} of ${total} hospital databases connected`
+      : "Checking hospital databases";
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+        <Link href={home} className="flex items-center gap-2 font-semibold tracking-tight">
           <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <ShieldCheckIcon className="size-4" />
           </span>
           <span className="hidden sm:inline">Health Data Access Body</span>
         </Link>
-        <nav className="flex items-center gap-1 rounded-lg bg-muted p-1">
-          {NAV.map((item) => {
-            const active = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "rounded-md px-3 py-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                  active && "bg-background text-foreground shadow-sm",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <span className="text-sm text-muted-foreground">{user.display_name}</span>
         <div className="ml-auto flex items-center gap-2">
           <span className="hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
-            <span className="size-1.5 rounded-full bg-success" />
-            3 hospital databases connected
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                health?.status === "ok" && !unreachable ? "bg-success" : "bg-warning",
+              )}
+            />
+            {healthLabel}
           </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await api.logout();
+              router.replace("/login");
+              router.refresh();
+            }}
+          >
+            Log out
+          </Button>
           <Button
             variant="ghost"
             size="icon"
